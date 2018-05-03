@@ -18,7 +18,7 @@ print_hi('Tom')
 #=> prints 'Hi, Tom' to STDOUT.
 {% endhighlight %}
 
-Some maths inline \\(\sqrt{a^2 + b^2} = \pi\\) and displayed
+Some maths inline \\(\sqrt{a^2 + b^2} = \pi\\) and \\(i\\) displayed
 \\[ \sum_{i=1}^\infty \frac{1}{n^s} = 7 \\]
 
 Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
