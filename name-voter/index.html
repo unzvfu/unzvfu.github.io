@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Name Voter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <div>
+          <p class="eyebrow">Collaborative Naming Vote</p>
+          <h1>Name Voter</h1>
+          <p class="subtitle">
+            A simple room for collecting candidate names, approving the ones
+            you like, and surfacing the most-approved options.
+          </p>
+        </div>
+        <div class="header-meta">
+          <div class="status-pill" id="backend-status">Connecting</div>
+          <div class="status-pill subtle" id="user-chip">No username yet</div>
+        </div>
+      </header>
+
+      <nav class="top-nav" id="top-nav">
+        <button class="nav-link active" data-route="overview">Overview</button>
+        <button class="nav-link" data-route="ballot">My Votes</button>
+        <button class="nav-link" data-route="results">Results</button>
+      </nav>
+
+      <main>
+        <section class="hero-card">
+          <div>
+            <p class="section-kicker">Room</p>
+            <h2 id="room-title">No room selected</h2>
+            <p id="room-description">
+              Create or join a room to start collecting names and votes.
+            </p>
+          </div>
+          <div class="hero-actions">
+            <button class="button secondary" id="change-room-button">
+              Change Room
+            </button>
+            <button class="button" id="share-link-button">Copy Secret Link</button>
+          </div>
+        </section>
+
+        <section class="app-layout" id="overview-view">
+          <div class="column-wide stack-lg">
+            <section class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-kicker">Add Candidate</p>
+                  <h3>Register a new company name</h3>
+                </div>
+              </div>
+              <form id="candidate-form" class="stack-md">
+                <label class="field">
+                  <span>Name</span>
+                  <input
+                    type="text"
+                    id="candidate-name"
+                    name="name"
+                    maxlength="120"
+                    required
+                    placeholder="Example: Cedar Current"
+                  />
+                </label>
+                <label class="field">
+                  <span>Notes</span>
+                  <textarea
+                    id="candidate-notes"
+                    name="notes"
+                    rows="4"
+                    placeholder="Meaning, tradeoffs, branding ideas, URLs, or anything else."
+                  ></textarea>
+                </label>
+                <label class="field">
+                  <span>My vote on this name</span>
+                  <select id="candidate-approval" name="approval">
+                    <option value="no">No</option>
+                    <option value="yes">Yes, approve this name</option>
+                  </select>
+                </label>
+                <div class="form-actions">
+                  <button class="button" type="submit">Add Candidate</button>
+                  <p class="helper-text">
+                    Each person can approve at most 10 names.
+                  </p>
+                </div>
+              </form>
+            </section>
+
+            <section class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-kicker">Candidates</p>
+                  <h3>Current list of company names</h3>
+                </div>
+                <p class="helper-text" id="candidate-count">0 candidates</p>
+              </div>
+              <div class="candidate-list stack-md" id="candidate-list"></div>
+            </section>
+          </div>
+
+          <aside class="column-narrow stack-lg">
+            <section class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-kicker">Participants</p>
+                  <h3>Votes in this room</h3>
+                </div>
+              </div>
+              <div class="stack-sm" id="participant-list"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-kicker">Voting Rules</p>
+                  <h3>Approval voting rules</h3>
+                </div>
+              </div>
+              <div class="stack-sm helper-text">
+                <p>
+                  Each person gives every name a yes or no vote. Not approved is
+                  treated as no.
+                </p>
+                <p>
+                  Each person can approve at most 10 names. Result ties are
+                  broken alphabetically so the ordering stays deterministic.
+                </p>
+              </div>
+            </section>
+          </aside>
+        </section>
+
+        <section class="app-layout hidden" id="ballot-view">
+          <div class="column-wide stack-lg">
+            <section class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-kicker">Ballot</p>
+                  <h3 id="ballot-title">My approval votes</h3>
+                </div>
+                <p class="helper-text" id="ballot-mode-label"></p>
+              </div>
+              <div class="ballot-grid">
+                <div class="ballot-column">
+                  <div class="column-header">
+                    <h4>Approved</h4>
+                    <p class="helper-text">These count as yes votes.</p>
+                  </div>
+                  <div class="stack-sm" id="approved-list"></div>
+                </div>
+                <div class="ballot-column">
+                  <div class="column-header">
+                    <h4>Not Approved</h4>
+                    <p class="helper-text">
+                      These count as no votes until you approve them.
+                    </p>
+                  </div>
+                  <div class="stack-sm" id="not-approved-list"></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="app-layout hidden" id="results-view">
+          <div class="column-wide stack-lg">
+            <section class="panel prominent">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-kicker">Primary Result</p>
+                  <h3>Top Approved Names</h3>
+                </div>
+              </div>
+              <div class="results-summary" id="approval-summary"></div>
+              <div class="stack-sm" id="approval-results"></div>
+            </section>
+          </div>
+
+          <aside class="column-narrow stack-lg">
+            <section class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-kicker">Participation</p>
+                  <h3>Ballot coverage</h3>
+                </div>
+              </div>
+              <div class="stack-sm" id="participation-summary"></div>
+            </section>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="modal" id="identity-modal">
+      <form method="dialog" class="modal-card stack-md" id="identity-form">
+        <div>
+          <p class="section-kicker">Identity</p>
+          <h2>Choose your username</h2>
+          <p class="helper-text">
+            There is no authentication. Anyone using the same username is
+            treated as the same person.
+          </p>
+        </div>
+        <label class="field">
+          <span>Username</span>
+          <input
+            type="text"
+            id="username-input"
+            maxlength="60"
+            required
+            placeholder="alex"
+          />
+        </label>
+        <div class="form-actions">
+          <button class="button" value="submit">Continue</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="room-modal">
+      <div class="modal-card stack-md">
+        <div>
+          <p class="section-kicker">Room Access</p>
+          <h2>Create or join a secret room</h2>
+          <p class="helper-text">
+            Anybody with the full room link can access and modify this room.
+          </p>
+        </div>
+        <div class="stack-sm">
+          <button class="button" id="create-room-button">Create New Room</button>
+          <form id="join-room-form" class="stack-sm">
+            <label class="field">
+              <span>Join with room token</span>
+              <input
+                type="text"
+                id="room-token-input"
+                placeholder="Paste the token from a shared link"
+                required
+              />
+            </label>
+            <button class="button secondary" type="submit">Join Room</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+    <script src="./firebase-config.js"></script>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
